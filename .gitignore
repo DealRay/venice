@@ -27,3 +27,5 @@ Gemfile.lock
 
 # RVM
 .rvmrc
+
+.idea

@@ -49,7 +49,7 @@ module Venice
       @bvrs = attributes['bvrs']
 
       # expires_date is in ms since the Epoch, Time.at expects seconds
-      @expires_at = Time.at(attributes['expires_date'].to_i / 1000) if attributes['expires_date']
+      @expires_at = DateTime.parse(attributes['expires_date']) if attributes['expires_date']
 
       if attributes['original_transaction_id'] || attributes['original_purchase_date']
         original_attributes = {
@@ -87,7 +87,15 @@ module Venice
       end
 
       def verify!(data, options = {})
-        client = Client.production
+        if Rails.env.production?
+          client = Client.production
+        else
+          client = Client.development
+        end
+
+        if options['shared_secret'].present?
+          client.shared_secret = options['shared_secret']
+        end
 
         begin
           client.verify!(data, options)
